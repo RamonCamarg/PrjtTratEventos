@@ -60,6 +60,22 @@ public class TodoList extends JFrame {
         markDoneButton = new JButton("Concluir");
         filterComboBox = new JComboBox<>(new String[] { "Todas", "Ativas", "Concluídas" });
         clearCompletedButton = new JButton("Limpar Concluídas");
+        //estiliza o botao
+        //botao de adicionar
+        addButton.setBackground(Color.BLUE);
+        addButton.setForeground(Color.WHITE);
+        //botao de excluir
+        deleteButton.setBackground(Color.RED);
+        deleteButton.setForeground(Color.WHITE);
+        //botao de concluir
+        markDoneButton.setBackground(Color.GREEN);
+        markDoneButton.setForeground(Color.WHITE);
+        //botao de atividades - Todas - Ativas - Concluidas
+        filterComboBox.setBackground(Color.gray);
+        filterComboBox.setForeground(Color.WHITE);
+        //botao de limpar concluidas
+        clearCompletedButton.setBackground(Color.magenta);
+        clearCompletedButton.setForeground(Color.WHITE);
 
         // Configuração do painel de entrada
         JPanel painel = new JPanel(new BorderLayout());
@@ -84,48 +100,53 @@ public class TodoList extends JFrame {
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 addTask();
+                JOptionPane.showMessageDialog(null,"A tarefa foi adicionada com sucesso");
             }
         });
-
-    // tratamento que exclui tarefas adicionadas
+        //botao de deleta tarefa
 deleteButton.addActionListener(new ActionListener() {
     public void actionPerformed(ActionEvent e) {
-        // Obtém o índice do item selecionado na lista de tarefas
         int selectedIndex = taskList.getSelectedIndex();
-        
-        // Verifica se algum item está selecionado
         if (selectedIndex != -1) {
-            // Remove a tarefa da lista de tarefas
-            tasks.remove(selectedIndex);
-            
-            // Atualiza a lista de tarefas na interface gráfica
-            updateTaskList();
+            int option = JOptionPane.showConfirmDialog(null, "Você deseja excluir esta tarefa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+            if (option == JOptionPane.YES_OPTION) {
+                tasks.remove(selectedIndex);
+                updateTaskList();
+                JOptionPane.showMessageDialog(null, "Tarefa excluída com sucesso!");
+            } else if (option == JOptionPane.NO_OPTION) {
+                JOptionPane.showMessageDialog(null, "Exclusão cancelada.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Selecione uma tarefa para excluir.");
         }
     }
 });
-    // tratamento que adiciona tarefa como concluida
+// botao que marc atarefa como concluida
 markDoneButton.addActionListener(new ActionListener() {
     public void actionPerformed(ActionEvent e) {
-        // Obtém o índice do item selecionado na lista de tarefas
         int selectedIndex = taskList.getSelectedIndex();
-        
-        // Verifica se algum item está selecionado
         if (selectedIndex != -1) {
-            // Marca a tarefa como concluída (você pode adicionar um campo booleano à classe Task para controlar o estado)
-            Task selectedTask = tasks.get(selectedIndex);
-            selectedTask.setDone(true);
-            
-            // Atualiza a lista de tarefas na interface gráfica
-            updateTaskList();
+            int option = JOptionPane.showConfirmDialog(null, "Você deseja marcar esta tarefa como concluída?", "Confirmação", JOptionPane.YES_NO_OPTION);
+            if (option == JOptionPane.YES_OPTION) {
+                Task selectedTask = tasks.get(selectedIndex);
+                selectedTask.setDone(true);
+                updateTaskList();
+                JOptionPane.showMessageDialog(null, "Tarefa marcada como concluída!");
+            } else if (option == JOptionPane.NO_OPTION) {
+                JOptionPane.showMessageDialog(null, "Operação cancelada.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Selecione uma tarefa para marcar como concluída.");
         }
     }
 });
+
     // tratamento que transfere as tarefas para onde tem que ir (todas), (ativas) e (concluidas)
 filterComboBox.addItemListener(new ItemListener() {
     public void itemStateChanged(ItemEvent e) {
         String selectedFilter = (String) filterComboBox.getSelectedItem();
 
-        // Filtra as tarefas com base na seleção do combobox
+        // Filtra as tarefas com base na seleção do JcomboBox
         switch (selectedFilter) {
             case "Todas":
                 updateTaskList(tasks);
@@ -158,23 +179,30 @@ filterComboBox.addItemListener(new ItemListener() {
     }
 });
 
-//tratamento que coloca as tarefas na parte de concluidas
 clearCompletedButton.addActionListener(new ActionListener() {
     public void actionPerformed(ActionEvent e) {
-        // Itera sobre a lista de tarefas e remove as tarefas concluídas
-        List<Task> tarefasAtivas = new ArrayList<>();
-        for (Task task : tasks) {
-            if (!task.isDone()) {
-                tarefasAtivas.add(task);
+        int option = JOptionPane.showConfirmDialog(null, "Você deseja limpar as tarefas concluídas?", "Confirmação", JOptionPane.YES_NO_OPTION);
+        if (option == JOptionPane.YES_OPTION) {
+            // Itera sobre a lista de tarefas e remove as tarefas concluídas
+            List<Task> activeTasks = new ArrayList<>();
+            for (Task task : tasks) {
+                if (!task.isDone()) {
+                    activeTasks.add(task);
+                }
             }
+            
+            // Atualiza a lista de tarefas com as tarefas ativas (não concluídas)
+            tasks = activeTasks;
+            
+            // Atualiza a lista de tarefas na interface gráfica
+            updateTaskList(tasks);
+            
+            JOptionPane.showMessageDialog(null, "Tarefas concluídas removidas com sucesso!");
+        } else if (option == JOptionPane.NO_OPTION) {
+            JOptionPane.showMessageDialog(null, "Remoção de tarefas concluídas cancelada.");
         }
-        
-        // Atualiza a lista de tarefas com as tarefas ativas (não concluídas)
-        tasks = tarefasAtivas;
-        
-        // Atualiza a lista de tarefas na interface gráfica
-        updateTaskList(tasks);
     }
+
     private void updateTaskList(List<Task> tasksToShow) {
         listModel.clear();
         for (Task task : tasksToShow) {
@@ -216,7 +244,7 @@ taskInputField.addFocusListener(new FocusAdapter() {
     public void focusGained(FocusEvent e) {
         // Lógica para tratar quando o campo de entrada ganha foco
         // Por exemplo, você pode limpar o texto do campo quando ele ganha foco
-        taskInputField.setText("");
+        taskInputField.setText("digite");
     }
 
     public void focusLost(FocusEvent e) {
@@ -230,7 +258,7 @@ taskInputField.addFocusListener(new FocusAdapter() {
     }
 });
     }
-
+    
     // Métodos adicionais
     private void addTask() {
         // Adiciona uma nova task à lista de tasks
